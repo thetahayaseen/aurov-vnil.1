@@ -1,3 +1,4 @@
+using mark_vnil._1.Models.RepositoryModels;
 using mark_vnil._1.Models.Requests;
 using mark_vnil._1.Models.ViewModels;
 using mark_vnil._1.Repositories;
@@ -31,8 +32,12 @@ public class ROVStreamController : Controller
     [HttpPost("api/rovstream/start")]
     public async Task<IActionResult> StartStream ([FromBody] StartStreamRequest request)
     {
-        var streamId = await _repository.StartStream(request.Title!, request.StartTimeStamp, request.SourceUrl);
-        await _hubContext.Clients.All.SendAsync("StreamStarted", new { streamId, request.Title, request.SourceUrl } );
+        StartStreamRepositoryModel repositoryModel = await _repository.StartStream(request.Title!, request.StartTimeStamp, request.SourceUrl);
+
+        int streamId = repositoryModel.StreamId;
+        List<string> detectedItemsUniqueLabels = repositoryModel.DetectedItemsUniqueLabels;
+
+        await _hubContext.Clients.All.SendAsync("StreamStarted", new { streamId, request.Title, request.SourceUrl, detectedItemsUniqueLabels } );
         return Ok( new { streamId } );
     }
 

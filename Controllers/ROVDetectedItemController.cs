@@ -23,7 +23,7 @@ public class ROVDetectedItemController : Controller
     public async Task<IActionResult> createSnapshot([FromBody] CreateSnapshotRequest request)
     {
         var detectedItemId = await _repository.CreateSnapshot(request.StreamId, request.Label, request.Confidence, request.DetectedAtTimeStamp, request.SnapshotFileUrl);
-        await _hubContext.Clients.All.SendAsync("NewItemDetected", new { request.Label, request.Confidence, request.DetectedAtTimeStamp, request.SnapshotFileUrl });
+        await _hubContext.Clients.All.SendAsync("NewItemDetected", new { request.StreamId, request.Label, request.Confidence, request.DetectedAtTimeStamp, request.SnapshotFileUrl });
         return Ok( new { detectedItemId } );
     }
     

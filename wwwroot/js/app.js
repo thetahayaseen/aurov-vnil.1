@@ -1,15 +1,56 @@
 ﻿const list = document.getElementById("detectedItemsList");
 
+function createChecklistItem(streamId, label) {
+	const li = document.createElement("li");
+	const checkbox = document.createElement("input");
+	checkbox.type = "checkbox";
+	checkbox.id = `check-${streamId}-${label}`;
+	checkbox.value = label;
+	checkbox.disabled = true;
+	const labelEl = document.createElement("label");
+	labelEl.htmlFor = `check-${streamId}-${label}`;
+	labelEl.textContent = label;
+	li.appendChild(checkbox);
+	li.appendChild(labelEl);
+	return { li, checkbox };
+}
+
+function populateChecklist(streamId, labels) {
+	const liveChecklistItems = document.getElementById(
+		"detectedItemsChecklist",
+	);
+	liveChecklistItems.innerHTML = "";
+	labels.forEach((label) => {
+		const { li } = createChecklistItem(streamId, label);
+		liveChecklistItems.appendChild(li);
+	});
+}
+
+function addDetectedItemCheckbox(streamId, label) {
+	const liveChecklistItems = document.getElementById(
+		"detectedItemsChecklist",
+	);
+	let checkbox = document.getElementById(`check-${streamId}-${label}`);
+	if (!checkbox) {
+		const created = createChecklistItem(streamId, label);
+		liveChecklistItems.appendChild(created.li);
+		checkbox = created.checkbox;
+	}
+	checkbox.checked = true;
+}
+
 const rovStreamConnection = new signalR.HubConnectionBuilder()
 	.withUrl("/rovstreamhub")
 	.build();
 
 rovStreamConnection.on("StreamStarted", (data) => {
 	document.getElementById("currentStreamingStatus").textContent =
-		"Live — " + data.title;
+		`Live #${data.streamId} — ` + data.title;
 	document.getElementById("liveIndicator").classList.remove("hidden");
 	document.getElementById("liveSection").classList.remove("hidden");
 	document.getElementById("liveStreamFeed").src = data.sourceUrl;
+
+	populateChecklist(data.streamId, data.detectedItemsUniqueLabels);
 });
 
 rovStreamConnection.on("StreamEnded", () => {
@@ -29,6 +70,8 @@ const rovDetectedItemConnection = new signalR.HubConnectionBuilder()
 	.build();
 
 rovDetectedItemConnection.on("NewItemDetected", (data) => {
+	addDetectedItemCheckbox(data.streamId, data.label);
+
 	const detectedItem = document.createElement("li");
 	detectedItem.className =
 		"flex gap-3 items-start bg-zinc-800 rounded-lg p-3";

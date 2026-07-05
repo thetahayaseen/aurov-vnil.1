@@ -7,6 +7,12 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ROVDetectedItem>().HasIndex(o => o.Label);
+        base.OnModelCreating(modelBuilder);
+    }
+
     public DbSet<ROVStream> ROVStreams { get; set; }
     public DbSet<ROVDetectedItem> ROVDetectedItems { get; set; }
 }

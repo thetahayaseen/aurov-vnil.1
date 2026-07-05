@@ -1,5 +1,6 @@
 using mark_vnil._1.Data;
 using mark_vnil._1.Models;
+using mark_vnil._1.Models.RepositoryModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace mark_vnil._1.Repositories;
@@ -13,7 +14,7 @@ public class ROVStreamRepository
         _dbContext = dbContext;
     }
     
-    public async Task<int> StartStream(string title, DateTime startTimeStamp, string sourceUrl)
+    public async Task<StartStreamRepositoryModel> StartStream(string title, DateTime startTimeStamp, string sourceUrl)
     {
         var stream = new ROVStream
         {
@@ -26,7 +27,15 @@ public class ROVStreamRepository
         _dbContext.ROVStreams.Add(stream);
         await _dbContext.SaveChangesAsync();
 
-        return stream.Id;
+        var detectedItemsUniqueLabels = await _dbContext.ROVDetectedItems.Select(o => o.Label).Distinct().ToListAsync();
+
+        StartStreamRepositoryModel repositoryModel = new StartStreamRepositoryModel
+        {
+            StreamId = stream.Id,
+            DetectedItemsUniqueLabels = detectedItemsUniqueLabels
+        }; 
+
+        return repositoryModel;
     } 
 
   public async Task EndStream(int streamId, DateTime endTimeStamp, string recordedFileUrl)
