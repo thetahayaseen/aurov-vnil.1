@@ -1,0 +1,63 @@
+﻿@model mark_vnil._1.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="p-6">
+    <div class="mb-6 flex items-center gap-3">
+        <span id="liveIndicator" class="hidden w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+        <p id="currentStreamingStatus" class="text-xl font-semibold text-black">Currently not streaming</p>
+    </div>
+
+    <div id="liveSection" class="hidden">
+        <div class="w-full rounded-xl overflow-hidden border border-zinc-700 mb-4">
+            <img id="liveStreamFeed" class="w-full object-cover" src="" alt="Live Feed">
+        </div>
+        <ul id="detectedItemsList" class="flex flex-wrap gap-4"></ul>
+    </div>
+</div>
+
+<hr class="border-zinc-700 mx-6" />
+
+<div class="p-6">
+    <h2 class="text-lg font-semibold text-zinc-300 mb-6">Past Streams</h2>
+
+    <div class="flex flex-col gap-8">
+        @foreach (var stream in Model.AllStreams)
+        {
+            <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-5">
+                <div class="mb-3">
+                    <h3 class="text-white font-semibold text-base">@stream.Title</h3>
+                    <p class="text-zinc-500 text-sm">@stream.StartTimeStamp.ToString("MMM dd, yyyy HH:mm") — @stream.EndTimeStamp?.ToString("MMM dd, yyyy HH:mm")</p>
+                </div>
+                <div class="flex gap-6">
+                    <div class="w-1/2 shrink-0">
+                        <video src="@stream.RecordedFileUrl" controls class="w-full rounded-lg border border-zinc-700"></video>
+                    </div>
+                    <div class="w-1/2 overflow-y-auto max-h-64">
+                        @if (stream.ROVDetectedItems!.Any())
+                        {
+                            <ul class="flex flex-col gap-3">
+                                @foreach (var item in stream.ROVDetectedItems)
+                                {
+                                    <li class="flex gap-3 items-start bg-zinc-800 rounded-lg p-3">
+                                        <img src="@item.SnapshotFileUrl" alt="@item.Label" class="w-20 h-20 object-cover rounded-md border border-zinc-600">
+                                        <div>
+                                            <p class="text-white font-medium text-sm">@item.Label</p>
+                                            <p class="text-zinc-500 text-xs">@item.DetectedAtTimeStamp.ToString("HH:mm:ss")</p>
+                                            <p class="text-zinc-500 text-xs">Confidence: @item.Confidence%</p>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-zinc-600 text-sm">No detections for this stream.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

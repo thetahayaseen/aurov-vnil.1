@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@font-face {
+	font-family: "JetBrainsMono";
+	src:
+		url("../fontfiles/JetBrainsMono/fonts/variable/JetBrainsMono.ttf")
+			format("truetype-supports-variation"),
+		url("../fontfiles/JetBrainsMono/fonts/variable/JetBrainsMono.ttf")
+			format("truetype");
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+@layer base {
+	html,
+	body {
+		font-family:
+			"JetBrainsMono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+			Consolas, monospace;
+	}
+}
